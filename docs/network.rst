@@ -1,3 +1,5 @@
+.. currentmodule:: pypowsybl.network
+
 Network
 =======
 
@@ -170,3 +172,12 @@ We can also update network elements with a data frame:
     - converters_mode (str), active_power_setpoint (double)
   * - Two windings transformer
     - ratio_tap_position (int), phase_tap_position (int)
+
+Detailed Documentation by class
+-------------------------------
+
+.. automodule:: pypowsybl.network
+    :members:
+    :private-members:
+    :special-members:
+    :autosummary:

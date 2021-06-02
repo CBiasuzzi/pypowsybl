@@ -44,6 +44,9 @@ Load.__repr__ = lambda self: f"{self.__class__.__name__}("\
 
 
 class Network(ObjectHandle):
+    """
+    This class represent a network.
+    """
     def __init__(self, ptr):
         ObjectHandle.__init__(self, ptr)
 
@@ -118,13 +121,96 @@ class Network(ObjectHandle):
         return create_data_frame_from_series_array(series_array)
 
     def create_buses_data_frame(self) -> pd.DataFrame:
+        """
+
+        Returns:
+            The bus data frame.
+
+        Note:
+            The resulting dataframe will have the following columns:
+
+              - "v_mag": the voltage magnitude (in pair unit)
+              - "v_ang": the voltage angle (in degree)
+
+            This dataframe is index by the name of the buses
+
+        Examples
+
+            .. code-block:: python
+
+                import pypowsybl as pypo
+                net = pypo.network.create_ieee14()
+                net.create_buses_data_frame()
+
+            It outputs something like:
+
+            ======  =======  =========
+             .      `v_mag`   `v_ang`
+            ======  =======  =========
+            id
+            VL1_0   1.060     0.00
+            VL2_0   1.045    -4.98
+            VL3_0   1.010    -12.72
+            VL4_0   1.019    -10.33
+            VL5_0   1.020     -8.78
+            VL6_0   1.070    -14.22
+            VL7_0   1.062    -13.37
+            VL8_0   1.090    -13.36
+            VL9_0   1.056    -14.94
+            VL10_0  1.051    -15.10
+            VL11_0  1.057    -14.79
+            VL12_0  1.055    -15.07
+            VL13_0  1.050    -15.16
+            VL14_0  1.036    -16.04
+            ======  =======  =========
+
+        """
         return self.create_elements_data_frame(_pypowsybl.ElementType.BUS)
 
     def create_generators_data_frame(self) -> pd.DataFrame:
         """ Create a generator ``Pandas`` data frame.
 
         Returns:
-            the generator data frame
+            the generator data frame.
+
+        Note:
+            The resulting dataframe will have the following columns:
+
+              - "energy_source": the energy source used to fuel the generator
+              - "target_p": the target active value for the generator (in MW)
+              - "max_p": the maximum active value for the generator  (MW)
+              - "min_p": the minimum active value for the generator  (MW)
+              - "target_v": the target voltage magnitude value for the generator (in pair unit)
+              - "target_q": the target reactive value for the generator (in MVAr)
+              - "voltage_regulator_on":
+              - "p" the actual active production of the generator (Nan if no powerflow has been computed)
+              - "q" the actual reactive production of the generator (Nan if no powerflow has been computed)
+              - "voltage_level_id": at which substation this generator is connected
+              - "bus_id": at which bus this generator is computed
+
+            This dataframe is index by the name of the generators
+
+        Examples
+
+            .. code-block:: python
+
+                import pypowsybl as pypo
+                net = pypo.network.create_ieee14()
+                net.create_generators_data_frame()
+
+            It outputs something like:
+
+            ====  ============= ========  ====== =======  ========  ========  ====================  ==== ==== ================ ======
+             .    energy_source target_p   max_p   min_p  target_v  target_q  voltage_regulator_on   p    q   voltage_level_id bus_id
+            ====  ============= ========  ====== =======  ========  ========  ====================  ==== ==== ================ ======
+            id
+            B1-G         OTHER     232.4  9999.0 -9999.0     1.060     -16.9                  True  NaN  NaN              VL1  VL1_0
+            B2-G         OTHER      40.0  9999.0 -9999.0     1.045      42.4                  True  NaN  NaN              VL2  VL2_0
+            B3-G         OTHER       0.0  9999.0 -9999.0     1.010      23.4                  True  NaN  NaN              VL3  VL3_0
+            B6-G         OTHER       0.0  9999.0 -9999.0     1.070      12.2                  True  NaN  NaN              VL6  VL6_0
+            B8-G         OTHER       0.0  9999.0 -9999.0     1.090      17.4                  True  NaN  NaN              VL8  VL8_0
+            ====  ============= ========  ====== =======  ========  ========  ====================  ==== ==== ================ ======
+
         """
         return self.create_elements_data_frame(_pypowsybl.ElementType.GENERATOR)
 
@@ -149,6 +235,60 @@ class Network(ObjectHandle):
 
         Returns:
             the line data frame
+
+        Note:
+            The resulting dataframe will have the following columns:
+
+              - "r": the resistance of the line (TODO unit, pu or not ?)
+              - "x": the reactance of the line (TODO unit, pu or not ?)
+              - "b1": the susceptance of line at its "1" side (TODO unit, pu or not ?)
+              - "g1": the  conductance of line at its "1" side (TODO unit, pu or not ?)
+              - "b2": the susceptance of line at its "2" side (TODO unit, pu or not ?)
+              - "g2": the  conductance of line at its "2" side (TODO unit, pu or not ?)
+              - "p1": the active flow on the line at its "1" side, Nan if no powerlow are computed (in MW)
+              - "q1": the reactive flow on the line at its "1" side, Nan if no powerlow are computed  (in MVAr)
+              - "p2": the active flow on the line at its "2" side, Nan if no powerlow are computed  (in MW)
+              - "q2": the reactive flow on the line at its "2" side, Nan if no powerlow are computed  (in MVAr)
+              -  "voltage_level1_id": at which substation the "1" side of the powerline is connected
+              -  "voltage_level2_id": at which substation the "2" side of the powerline is connected
+              -  "bus1_id": at which bus the "1" side of the powerline is connected
+              -  "bus2_id": at which bus the "2" side of the powerline is connected
+
+            This dataframe is index by the name of the powerlines
+
+        Examples
+
+            .. code-block:: python
+
+                import pypowsybl as pypo
+                net = pypo.network.create_ieee14()
+                net.create_lines_data_frame()
+
+            It outputs something like:
+
+            ========  ========  ========  ===  ====  ===  ==== === === === ==== ================= ================= ======= =======
+                .            r         x   g1    b1   g2    b2  p1  q1  p2  q2  voltage_level1_id voltage_level2_id bus1_id bus2_id
+            ========  ========  ========  ===  ====  ===  ==== === === === ==== ================= ================= ======= =======
+            id
+            L1-2-1    0.000194  0.000592  0.0  2.64  0.0  2.64 NaN NaN NaN NaN               VL1               VL2   VL1_0   VL2_0
+            L1-5-1    0.000540  0.002230  0.0  2.46  0.0  2.46 NaN NaN NaN NaN               VL1               VL5   VL1_0   VL5_0
+            L2-3-1    0.000470  0.001980  0.0  2.19  0.0  2.19 NaN NaN NaN NaN               VL2               VL3   VL2_0   VL3_0
+            L2-4-1    0.000581  0.001763  0.0  1.70  0.0  1.70 NaN NaN NaN NaN               VL2               VL4   VL2_0   VL4_0
+            L2-5-1    0.000570  0.001739  0.0  1.73  0.0  1.73 NaN NaN NaN NaN               VL2               VL5   VL2_0   VL5_0
+            L3-4-1    0.000670  0.001710  0.0  0.64  0.0  0.64 NaN NaN NaN NaN               VL3               VL4   VL3_0   VL4_0
+            L4-5-1    0.000134  0.000421  0.0  0.00  0.0  0.00 NaN NaN NaN NaN               VL4               VL5   VL4_0   VL5_0
+            L6-11-1   0.000950  0.001989  0.0  0.00  0.0  0.00 NaN NaN NaN NaN               VL6              VL11   VL6_0  VL11_0
+            L6-12-1   0.001229  0.002558  0.0  0.00  0.0  0.00 NaN NaN NaN NaN               VL6              VL12   VL6_0  VL12_0
+            L6-13-1   0.000661  0.001303  0.0  0.00  0.0  0.00 NaN NaN NaN NaN               VL6              VL13   VL6_0  VL13_0
+            L7-8-1    0.000000  0.001762  0.0  0.00  0.0  0.00 NaN NaN NaN NaN               VL7               VL8   VL7_0   VL8_0
+            L7-9-1    0.000000  0.001100  0.0  0.00  0.0  0.00 NaN NaN NaN NaN               VL7               VL9   VL7_0   VL9_0
+            L9-10-1   0.000318  0.000845  0.0  0.00  0.0  0.00 NaN NaN NaN NaN               VL9              VL10   VL9_0  VL10_0
+            L9-14-1   0.001271  0.002704  0.0  0.00  0.0  0.00 NaN NaN NaN NaN               VL9              VL14   VL9_0  VL14_0
+            L10-11-1  0.000821  0.001921  0.0  0.00  0.0  0.00 NaN NaN NaN NaN              VL10              VL11  VL10_0  VL11_0
+            L12-13-1  0.002209  0.001999  0.0  0.00  0.0  0.00 NaN NaN NaN NaN              VL12              VL13  VL12_0  VL13_0
+            L13-14-1  0.001709  0.003480  0.0  0.00  0.0  0.00 NaN NaN NaN NaN              VL13              VL14  VL13_0  VL14_0
+            ========  ========  ========  ===  ====  ===  ==== === === === ==== ================= ================= ======= =======
+
         """
         return self.create_elements_data_frame(_pypowsybl.ElementType.LINE)
 
