@@ -190,6 +190,16 @@ class Network(ObjectHandle):
 
             This dataframe is index by the name of the generators
 
+        .. warning::
+
+            The "generator convention" is used for the "input" columns (`target_p`, `max_p`,
+            `min_p`, `target_v` and `target_q`) while the "load convention" is used for the ouput columns
+            (`p` and `q`).
+
+            Most of the time, this means that `p` and `target_p` will have opposite sign. This also entails that
+            `p` can be lower than `min_p`. Actually, the relation: :math:`\\text{min_p} <= -p <= \\text{max_p}`
+            should hold.
+
         Examples
 
             .. code-block:: python
@@ -218,7 +228,48 @@ class Network(ObjectHandle):
         """ Create a generator ``Pandas`` data frame.
 
         Returns:
-            the generator data frame
+            the load data frame
+
+        Note:
+            The resulting dataframe will have the following columns:
+
+              - "type": type of load
+              - "p0": the active load consumption setpoint (MW)
+              - "q0": the reactive load consumption setpoint  (MVAr)
+              - "p": the result active load consumption, it is Nan is not powerflow has been computed (MW)
+              - "q": the result reactive load consumption, it is Nan is not powerflow has been computed (MVAr)
+              - "voltage_level_id": at which substation this load is connected
+              - "bus_id": at which bus this load is connected
+
+            This dataframe is index by the name of the loads.
+
+        Examples
+
+            .. code-block:: python
+
+                import pypowsybl as pypo
+                net = pypo.network.create_ieee14()
+                net.create_loads_data_frame()
+
+            It outputs something like:
+
+            ===== ========== ===== ===== === === ================ =======
+              .         type    p0    q0   p   q voltage_level_id  bus_id
+            ===== ========== ===== ===== === === ================ =======
+            id
+            B2-L   UNDEFINED  21.7  12.7 NaN NaN              VL2   VL2_0
+            B3-L   UNDEFINED  94.2  19.0 NaN NaN              VL3   VL3_0
+            B4-L   UNDEFINED  47.8  -3.9 NaN NaN              VL4   VL4_0
+            B5-L   UNDEFINED   7.6   1.6 NaN NaN              VL5   VL5_0
+            B6-L   UNDEFINED  11.2   7.5 NaN NaN              VL6   VL6_0
+            B9-L   UNDEFINED  29.5  16.6 NaN NaN              VL9   VL9_0
+            B10-L  UNDEFINED   9.0   5.8 NaN NaN             VL10  VL10_0
+            B11-L  UNDEFINED   3.5   1.8 NaN NaN             VL11  VL11_0
+            B12-L  UNDEFINED   6.1   1.6 NaN NaN             VL12  VL12_0
+            B13-L  UNDEFINED  13.5   5.8 NaN NaN             VL13  VL13_0
+            B14-L  UNDEFINED  14.9   5.0 NaN NaN             VL14  VL14_0
+            ===== ========== ===== ===== === === ================ =======
+
         """
         return self.create_elements_data_frame(_pypowsybl.ElementType.LOAD)
 
@@ -435,6 +486,7 @@ class Network(ObjectHandle):
 
         Args:
             df (DataFrame): the ``Pandas`` data frame
+
         """
         return self.update_elements_with_data_frame(_pypowsybl.ElementType.SWITCH, df)
 
