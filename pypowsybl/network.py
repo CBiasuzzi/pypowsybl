@@ -13,6 +13,7 @@ from pypowsybl.util import create_data_frame_from_series_array
 from typing import List
 from typing import Set
 import pandas as pd
+import networkx as nx
 
 
 class Network(ObjectHandle):
@@ -410,6 +411,43 @@ class Network(ObjectHandle):
             all the ids of the existing variants
         """
         return _pypowsybl.get_variant_ids(self.ptr)
+
+    def get_voltage_topology(self, voltage_level):
+        """
+
+        Args:
+            voltage_level:
+
+        Returns:
+
+        """
+        return NetworkTopology(self.ptr, voltage_level)
+
+
+class NetworkTopology:
+    def __init__(self, network_ptr, voltage_level):
+        self._internal_connections = create_data_frame_from_series_array(
+            _pypowsybl.get_node_breaker_view_internal_connections(network_ptr, voltage_level))
+        self._switchs = create_data_frame_from_series_array(
+            _pypowsybl.get_node_breaker_view_switchs(network_ptr, voltage_level))
+        self._nodes = create_data_frame_from_series_array(
+            _pypowsybl.get_node_breaker_view_nodes(network_ptr, voltage_level))
+
+    def get_switchs(self):
+        return self._switchs
+
+    def get_nodes(self):
+        return self._nodes
+
+    def get_internal_connections(self):
+        return self._internal_connections
+
+    def create_graph(self):
+        graph = nx.Graph()
+        graph.add_nodes_from(self._nodes.index.tolist())
+        graph.add_edges_from(self._switchs[['node_1', 'node_2']].values.tolist())
+        graph.add_edges_from(self._internal_connections[['node_1', 'node_2']].values.tolist())
+        return graph
 
 
 def create_empty(id: str = "Default") -> Network:

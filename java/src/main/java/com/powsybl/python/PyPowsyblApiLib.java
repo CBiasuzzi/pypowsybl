@@ -15,8 +15,7 @@ import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.parameters.Parameter;
@@ -32,6 +31,7 @@ import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.tools.Version;
+import org.apache.commons.collections4.IteratorUtils;
 import org.graalvm.nativeimage.IsolateThread;
 import org.graalvm.nativeimage.ObjectHandle;
 import org.graalvm.nativeimage.ObjectHandles;
@@ -884,6 +884,57 @@ public final class PyPowsyblApiLib {
         return doCatch(exceptionHandlerPtr, () -> {
             Network network = ObjectHandles.getGlobal().get(networkHandle);
             return createCharPtrArray(List.copyOf(network.getVariantManager().getVariantIds()));
+        });
+    }
+
+    @CEntryPoint(name = "getNodeBreakerViewSwitchs")
+    public static ArrayPointer<SeriesPointer> getNodeBreakerViewSwitchs(IsolateThread thread, ObjectHandle networkHandle, CCharPointer voltageLevel, ExceptionHandlerPointer exceptionHandlerPtr) {
+        return doCatch(exceptionHandlerPtr, () -> {
+            Network network = ObjectHandles.getGlobal().get(networkHandle);
+            VoltageLevel.NodeBreakerView nodeBreakerView = network.getVoltageLevel(CTypeUtil.toString(voltageLevel)).getNodeBreakerView();
+            List<Switch> switches = IteratorUtils.toList(nodeBreakerView.getSwitches().iterator());
+            return new SeriesPointerArrayBuilder<>(switches)
+                .addStringSeries("switch_id", true, Switch::getId)
+                .addEnumSeries("kind", Switch::getKind)
+                .addBooleanSeries("open", Switch::isOpen)
+                .addIntSeries("node_1", switchDevice -> nodeBreakerView.getNode1(switchDevice.getId()))
+                .addIntSeries("node_2", switchDevice -> nodeBreakerView.getNode2(switchDevice.getId()))
+                .build();
+        });
+    }
+
+    @CEntryPoint(name = "getNodeBreakerViewNodes")
+    public static ArrayPointer<SeriesPointer> getNodeBreakerViewNodes(IsolateThread thread, ObjectHandle networkHandle, CCharPointer voltageLevel, ExceptionHandlerPointer exceptionHandlerPtr) {
+        return doCatch(exceptionHandlerPtr, () -> {
+            Network network = ObjectHandles.getGlobal().get(networkHandle);
+            VoltageLevel.NodeBreakerView nodeBreakerView = network.getVoltageLevel(CTypeUtil.toString(voltageLevel)).getNodeBreakerView();
+            List<Integer> nodes = Arrays.stream(nodeBreakerView.getNodes()).boxed().collect(Collectors.toList());
+            List<NodeContext> nodeContexts = nodes.stream().map(node -> {
+                Terminal terminal = nodeBreakerView.getTerminal(node);
+                if (terminal == null) {
+                    return new NodeContext(node, null);
+                } else {
+                    return new NodeContext(node, terminal.getConnectable().getId());
+                }
+            }).collect(Collectors.toList());
+            return new SeriesPointerArrayBuilder<>(nodeContexts)
+                .addIntSeries("node", true, NodeContext::getNode)
+                .addStringSeries("connectable_id", node -> Objects.toString(node.getConnectableId(), ""))
+                .build();
+        });
+    }
+
+    @CEntryPoint(name = "getNodeBreakerViewInternalConnections")
+    public static ArrayPointer<SeriesPointer> getNodeBreakerViewInternalConnections(IsolateThread thread, ObjectHandle networkHandle, CCharPointer voltageLevel, ExceptionHandlerPointer exceptionHandlerPtr) {
+        return doCatch(exceptionHandlerPtr, () -> {
+            Network network = ObjectHandles.getGlobal().get(networkHandle);
+            VoltageLevel.NodeBreakerView nodeBreakerView = network.getVoltageLevel(CTypeUtil.toString(voltageLevel)).getNodeBreakerView();
+            List<VoltageLevel.NodeBreakerView.InternalConnection> internalConnections = IteratorUtils.toList(nodeBreakerView.getInternalConnections().iterator());
+            return new SeriesPointerArrayBuilder<>(internalConnections)
+                .addIntSeries("id", true, internalConnections::indexOf)
+                .addIntSeries("node_1", VoltageLevel.NodeBreakerView.InternalConnection::getNode1)
+                .addIntSeries("node_2", VoltageLevel.NodeBreakerView.InternalConnection::getNode2)
+                .build();
         });
     }
 }

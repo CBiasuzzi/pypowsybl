@@ -407,6 +407,11 @@ PYBIND11_MODULE(_pypowsybl, m) {
     m.def("clone_variant", &pypowsybl::cloneVariant, "clone a variant", py::arg("network"), py::arg("src"), py::arg("variant"), py::arg("may_overwrite"));
     m.def("get_variant_ids", &pypowsybl::getVariantsIds, "get all variant ids from a network", py::arg("network"));
 
+    m.def("get_node_breaker_view_nodes", &pypowsybl::getNodeBreakerViewNodes, "get all nodes for a voltage level", py::arg("network"), py::arg("voltage_level"));
+    m.def("get_node_breaker_view_internal_connections", &pypowsybl::getNodeBreakerViewInternalConnections,
+    "get all internal connections for a voltage level", py::arg("network"), py::arg("voltage_level"));
+    m.def("get_node_breaker_view_switchs", &pypowsybl::getNodeBreakerViewSwitchs, "get all switchs for a voltage level", py::arg("network"), py::arg("voltage_level"));
+
 
 
 }

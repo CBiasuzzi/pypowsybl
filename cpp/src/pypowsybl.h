@@ -195,6 +195,12 @@ void cloneVariant(void* network, std::string& src, std::string& variant, bool ma
 
 std::vector<std::string> getVariantsIds(void* network);
 
+SeriesArray* getNodeBreakerViewSwitchs(void* network,std::string& voltageLevel);
+
+SeriesArray* getNodeBreakerViewNodes(void* network,std::string& voltageLevel);
+
+SeriesArray* getNodeBreakerViewInternalConnections(void* network,std::string& voltageLevel);
+
 }
 
 #endif //PYPOWSYBL_H

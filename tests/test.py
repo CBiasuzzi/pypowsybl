@@ -14,6 +14,8 @@ import pypowsybl.sensitivity
 import pypowsybl as pp
 import pandas as pd
 import pathlib
+import matplotlib.pyplot as plt
+import networkx as nx
 
 TEST_DIR = pathlib.Path(__file__).parent
 DATA_DIR = TEST_DIR.parent.joinpath('data')
@@ -449,7 +451,25 @@ class PyPowsyblTestCase(unittest.TestCase):
         self.assertEqual('InitialState', n.get_working_variant_id())
         self.assertEqual(1, len(n.get_variant_ids()))
 
+    def test_node_breaker_view(self):
+        n = pp.network.create_four_substations_node_breaker_network()
+        network_topology = n.get_voltage_topology('S4VL1')
+        self.assertEqual(6, len(network_topology.get_switchs()))
+        self.assertEqual('DISCONNECTOR', network_topology.get_switchs().loc['S4VL1_BBS_LINES3S4_DISCONNECTOR']['kind'])
+        self.assertEqual(False, network_topology.get_switchs().loc['S4VL1_BBS_LINES3S4_DISCONNECTOR']['open'])
+        self.assertEqual(0, network_topology.get_switchs().loc['S4VL1_BBS_LINES3S4_DISCONNECTOR']['node_1'])
+        self.assertEqual(5, network_topology.get_switchs().loc['S4VL1_BBS_LINES3S4_DISCONNECTOR']['node_2'])
+        self.assertEqual(7, len(network_topology.get_nodes()))
+        self.assertEqual(True, network_topology.get_internal_connections().empty)
 
+
+    @unittest.skip("plot graph skipping")
+    def test_node_breaker_view_draw_graph(self):
+        n = pp.network.create_four_substations_node_breaker_network()
+        network_topology = n.get_voltage_topology('S4VL1')
+        graph = network_topology.create_graph()
+        nx.draw_shell(graph, with_labels=True)
+        plt.show()
 
 
 if __name__ == '__main__':

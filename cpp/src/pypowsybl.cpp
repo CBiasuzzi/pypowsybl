@@ -465,5 +465,16 @@ std::vector<std::string> getVariantsIds(void* network) {
     return formats.get();
 }
 
+SeriesArray* getNodeBreakerViewSwitchs(void* network,std::string& voltageLevel) {
+    return new SeriesArray(callJava<array*>(::getNodeBreakerViewSwitchs, network, (char*) voltageLevel.c_str()));
+}
+
+SeriesArray* getNodeBreakerViewNodes(void* network,std::string& voltageLevel) {
+    return new SeriesArray(callJava<array*>(::getNodeBreakerViewNodes, network, (char*) voltageLevel.c_str()));
+}
+
+SeriesArray* getNodeBreakerViewInternalConnections(void* network,std::string& voltageLevel) {
+    return new SeriesArray(callJava<array*>(::getNodeBreakerViewInternalConnections, network, (char*) voltageLevel.c_str()));
+}
 
 }
