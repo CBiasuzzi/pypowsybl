@@ -368,17 +368,26 @@ BBE1AA1               0 2 400.00 3000.00 0.00000 -1500.0 0.00000 0.00000 -9000.0
         expected = pd.DataFrame(index=pd.Series(name='id', data=['DL']),
                                 columns=['r', 'x', 'g', 'b', 'p0', 'q0', 'p', 'q', 'i', 'voltage_level_id', 'bus_id'],
                                 data=[[10.0, 1.0, 0.0001, 0.00001, 50.0, 30.0, NaN, NaN, NaN, 'VL', 'VL_0']])
-        dangling_lines = n.get_dangling_lines()
-        pd.testing.assert_frame_equal(expected, dangling_lines, check_dtype=False)
+        pd.testing.assert_frame_equal(expected, n.get_dangling_lines(), check_dtype=False)
+        n.update_dangling_lines(pd.DataFrame(index=['DL'], columns=['p0', 'q0'], data=[[55, 35]]))
+        expected = pd.DataFrame(index=pd.Series(name='id', data=['DL']),
+                                columns=['r', 'x', 'g', 'b', 'p0', 'q0', 'p', 'q', 'i', 'voltage_level_id', 'bus_id'],
+                                data=[[10.0, 1.0, 0.0001, 0.00001, 55.0, 35.0, NaN, NaN, NaN, 'VL', 'VL_0']])
+        pd.testing.assert_frame_equal(expected, n.get_dangling_lines(), check_dtype=False)
 
     def test_batteries(self):
         n = pp.network._create_battery_network()
         expected = pd.DataFrame(index=pd.Series(name='id', data=['BAT', 'BAT2']),
                                 columns=['max_p', 'min_p', 'p0', 'q0', 'p', 'q', 'i', 'voltage_level_id', 'bus_id'],
                                 data=[[9999.99, -9999.99, 9999.99, 9999.99, -605, -225, NaN, 'VLBAT', 'VLBAT_0'],
-                                      [200, -200, 100, 200, -605, -225,  NaN, 'VLBAT', 'VLBAT_0']])
-        batteries = n.get_batteries()
-        pd.testing.assert_frame_equal(expected, batteries, check_dtype=False)
+                                      [200, -200, 100, 200, -605, -225, NaN, 'VLBAT', 'VLBAT_0']])
+        pd.testing.assert_frame_equal(expected,  n.get_batteries(), check_dtype=False)
+        n.update_batteries(pd.DataFrame(index=['BAT2'], columns=['p0', 'q0'], data=[[50, 100]]))
+        expected = pd.DataFrame(index=pd.Series(name='id', data=['BAT', 'BAT2']),
+                                columns=['max_p', 'min_p', 'p0', 'q0', 'p', 'q', 'i', 'voltage_level_id', 'bus_id'],
+                                data=[[9999.99, -9999.99, 9999.99, 9999.99, -605, -225, NaN, 'VLBAT', 'VLBAT_0'],
+                                      [200, -200, 50, 100, -605, -225, NaN, 'VLBAT', 'VLBAT_0']])
+        pd.testing.assert_frame_equal(expected, n.get_batteries(), check_dtype=False)
 
 
 if __name__ == '__main__':
