@@ -157,6 +157,28 @@ class Network(object):
         """
         return SingleLineDiagram(_pypowsybl.get_single_line_diagram_svg(self._handle, container_id))
 
+    def write_diff_single_line_diagram_svg(self, network2, container_id: str, svg_file: str, p_threshold = 0.0, v_threshold = 0.0, levels = ""):
+        """ Create a diff single line diagram in SVG format from a voltage level or a substation and write to a file.
+
+        Args:
+            network2: a network to be compared
+            container_id: a voltage level id or a substation id
+            svg_file: a svg file path
+        """
+        _pypowsybl.write_diff_single_line_diagram_svg(self._handle, network2._handle, container_id, p_threshold, v_threshold, levels, svg_file)
+
+    def get_diff_single_line_diagram(self, network2, container_id: str, p_threshold = 0.0, v_threshold = 0.0, levels = ""):
+        """ Create a diff single line diagram from a voltage level or a substation.
+
+        Args:
+            network2: a network to be compared
+            container_id: a voltage level id or a substation id
+
+        Returns:
+            the single line diagram
+        """
+        return SingleLineDiagram(_pypowsybl.get_diff_single_line_diagram_svg(self._handle, network2._handle, container_id, p_threshold, v_threshold, levels))
+
     def get_elements_ids(self, element_type: _pypowsybl.ElementType, nominal_voltages: Set[float] = None,
                          countries: Set[str] = None,
                          main_connected_component: bool = True, main_synchronous_component: bool = True,

@@ -31,6 +31,7 @@
         <logback.version>1.2.3</logback.version>
         <mapdb.version>3.0.8</mapdb.version>
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
+        <network-diff-core.version>1.0.0-SNAPSHOT</network-diff-core.version>
         <slf4j.version>1.7.30</slf4j.version>
         <powsybl-core.version>4.3.0-alpha-1</powsybl-core.version>
         <powsybl-rte-core.version>3.3.0-alpha-1</powsybl-rte-core.version>
@@ -119,6 +120,12 @@
             <groupId>org.mapdb</groupId>
             <artifactId>mapdb</artifactId>
             <version>${mapdb.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>network-diff-core</artifactId>
+            <version>${network-diff-core.version}</version>
         </dependency>
 
         <dependency>

@@ -1,0 +1,8 @@
+{
+  "resources":{
+  "includes":[
+    {"pattern":"\\QdefaultConstantColors.css\\E"},
+    {"pattern":"\\Qdiffs.css\\E"},
+    {"pattern":"\\Qcolors-levels-diffs.css\\E"}
+  ]}
+}

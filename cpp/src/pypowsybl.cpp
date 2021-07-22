@@ -379,6 +379,18 @@ std::string getSingleLineDiagramSvg(const JavaHandle& network, const std::string
     return toString(callJava<char*>(::getSingleLineDiagramSvg, network, (char*) containerId.data()));
 }
 
+void writeDiffSingleLineDiagramSvg(const JavaHandle& network1, const JavaHandle& network2, const std::string& containerId,
+                                   const double p_threshold, const double v_threshold, const std::string& levels, const std::string& svgFile) {
+    callJava(::writeDiffSingleLineDiagramSvg, network1, network2, (char*) containerId.data(), p_threshold, v_threshold,
+             (char*) levels.data(), (char*) svgFile.data());
+}
+
+std::string getDiffSingleLineDiagramSvg(const JavaHandle& network1, const JavaHandle& network2, const std::string& containerId,
+                                        const double p_threshold, const double v_threshold, const std::string& levels) {
+    return toString(callJava<char*>(::getDiffSingleLineDiagramSvg, network1, network2,
+                                       (char*) containerId.data(), p_threshold, v_threshold, (char*) levels.data()));
+}
+
 JavaHandle createSecurityAnalysis() {
     return callJava<JavaHandle>(::createSecurityAnalysis);
 }

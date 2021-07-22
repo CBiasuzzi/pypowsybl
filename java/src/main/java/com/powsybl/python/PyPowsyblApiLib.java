@@ -202,6 +202,32 @@ public final class PyPowsyblApiLib {
         });
     }
 
+    @CEntryPoint(name = "writeDiffSingleLineDiagramSvg")
+    public static void writeDiffSingleLineDiagramSvg(IsolateThread thread, ObjectHandle networkHandle1, ObjectHandle networkHandle2, CCharPointer containerId,
+                                                     double pThreshold, double vTreshold, CCharPointer levels, CCharPointer svgFile, ExceptionHandlerPointer exceptionHandlerPtr) {
+        doCatch(exceptionHandlerPtr, () -> {
+            Network network1 = ObjectHandles.getGlobal().get(networkHandle1);
+            Network network2 = ObjectHandles.getGlobal().get(networkHandle2);
+            String containerIdStr = CTypeUtil.toString(containerId);
+            String levelsStr = CTypeUtil.toString(levels);
+            String svgFileStr = CTypeUtil.toString(svgFile);
+            DiffSingleLineDiagramUtil.writeDiffSvg(network1, network2, containerIdStr, pThreshold, vTreshold, levelsStr, svgFileStr);
+        });
+    }
+
+    @CEntryPoint(name = "getDiffSingleLineDiagramSvg")
+    public static CCharPointer getDiffSingleLineDiagramSvg(IsolateThread thread, ObjectHandle networkHandle1, ObjectHandle networkHandle2, CCharPointer containerId,
+                                                           double pThreshold, double vTreshold, CCharPointer levels, ExceptionHandlerPointer exceptionHandlerPtr) {
+        return doCatch(exceptionHandlerPtr, () -> {
+            Network network1 = ObjectHandles.getGlobal().get(networkHandle1);
+            Network network2 = ObjectHandles.getGlobal().get(networkHandle2);
+            String containerIdStr = CTypeUtil.toString(containerId);
+            String levelsStr = CTypeUtil.toString(levels);
+            String svg = DiffSingleLineDiagramUtil.getDiffSvg(network1, network2, containerIdStr, pThreshold, vTreshold, levelsStr);
+            return CTypeUtil.toCharPtr(svg);
+        });
+    }
+
     @CEntryPoint(name = "createSecurityAnalysis")
     public static ObjectHandle createSecurityAnalysis(IsolateThread thread, ExceptionHandlerPointer exceptionHandlerPtr) {
         return doCatch(exceptionHandlerPtr, () -> ObjectHandles.getGlobal().create(new SecurityAnalysisContext()));

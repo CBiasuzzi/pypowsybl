@@ -1,0 +1,21 @@
+[
+  {
+    "name": "java.util.LinkedHashMap",
+    "methods": [
+      { "name": "<init>", "parameterTypes": [] }
+    ]
+  },
+  {
+    "name":"com.powsybl.diff.LevelsData",
+    "allDeclaredFields":true,
+    "allDeclaredMethods":true,
+    "allDeclaredConstructors":true
+  },
+  {
+    "name":"com.powsybl.diff.LevelData",
+    "allDeclaredFields":true,
+    "allDeclaredMethods":true,
+    "allDeclaredConstructors":true
+  }
+]
+
