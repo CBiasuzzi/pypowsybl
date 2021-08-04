@@ -1,0 +1,9 @@
+.cust-dash-canvas button[Title = 'Save']{
+      display: none !important;
+}
+
+#fig-sdl .modebar {
+    position: fixed;
+    top: 6%;
+    left: 3%;
+}
