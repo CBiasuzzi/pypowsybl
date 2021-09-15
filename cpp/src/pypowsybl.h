@@ -183,6 +183,10 @@ void writeDiffSingleLineDiagramSvg(const JavaHandle& network1, const JavaHandle&
 
 std::string getDiffSingleLineDiagramSvg(const JavaHandle& network1, const JavaHandle& network2, const std::string& containerId, const double p_threshold, const double v_threshold, const std::string& levels);
 
+void writeMergedDiffSingleLineDiagramSvg(const JavaHandle& network1, const JavaHandle& network2, const std::string& containerId, const double p_threshold, const double v_threshold, const std::string& levels, bool useCurrent, const std::string& svgFile);
+
+std::string getMergedDiffSingleLineDiagramSvg(const JavaHandle& network1, const JavaHandle& network2, const std::string& containerId, const double p_threshold, const double v_threshold, const std::string& levels, bool useCurrent);
+
 JavaHandle createSecurityAnalysis();
 
 void addContingency(const JavaHandle& analysisContext, const std::string& contingencyId, const std::vector<std::string>& elementsIds);

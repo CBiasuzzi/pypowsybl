@@ -228,6 +228,32 @@ public final class PyPowsyblApiLib {
         });
     }
 
+    @CEntryPoint(name = "writeMergedDiffSingleLineDiagramSvg")
+    public static void writeMergedDiffSingleLineDiagramSvg(IsolateThread thread, ObjectHandle networkHandle1, ObjectHandle networkHandle2, CCharPointer containerId,
+                                                     double pThreshold, double vTreshold, CCharPointer levels, boolean showCurrent, CCharPointer svgFile, ExceptionHandlerPointer exceptionHandlerPtr) {
+        doCatch(exceptionHandlerPtr, () -> {
+            Network network1 = ObjectHandles.getGlobal().get(networkHandle1);
+            Network network2 = ObjectHandles.getGlobal().get(networkHandle2);
+            String containerIdStr = CTypeUtil.toString(containerId);
+            String levelsStr = CTypeUtil.toString(levels);
+            String svgFileStr = CTypeUtil.toString(svgFile);
+            DiffSingleLineDiagramUtil.writeMergedDiffSvg(network1, network2, containerIdStr, pThreshold, vTreshold, levelsStr, showCurrent, svgFileStr);
+        });
+    }
+
+    @CEntryPoint(name = "getMergedDiffSingleLineDiagramSvg")
+    public static CCharPointer getMergedDiffSingleLineDiagramSvg(IsolateThread thread, ObjectHandle networkHandle1, ObjectHandle networkHandle2, CCharPointer containerId,
+                                                           double pThreshold, double vTreshold, CCharPointer levels, boolean showCurrent, ExceptionHandlerPointer exceptionHandlerPtr) {
+        return doCatch(exceptionHandlerPtr, () -> {
+            Network network1 = ObjectHandles.getGlobal().get(networkHandle1);
+            Network network2 = ObjectHandles.getGlobal().get(networkHandle2);
+            String containerIdStr = CTypeUtil.toString(containerId);
+            String levelsStr = CTypeUtil.toString(levels);
+            String svg = DiffSingleLineDiagramUtil.getMergedDiffSvg(network1, network2, containerIdStr, pThreshold, vTreshold, levelsStr, showCurrent);
+            return CTypeUtil.toCharPtr(svg);
+        });
+    }
+
     @CEntryPoint(name = "createSecurityAnalysis")
     public static ObjectHandle createSecurityAnalysis(IsolateThread thread, ExceptionHandlerPointer exceptionHandlerPtr) {
         return doCatch(exceptionHandlerPtr, () -> ObjectHandles.getGlobal().create(new SecurityAnalysisContext()));

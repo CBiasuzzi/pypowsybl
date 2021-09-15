@@ -274,6 +274,14 @@ PYBIND11_MODULE(_pypowsybl, m) {
           py::arg("network1"), py::arg("network2"), py::arg("container_id"), py::arg("p_threshold"),
           py::arg("t_threshold"), py::arg("levels"));
 
+    m.def("write_merged_diff_single_line_diagram_svg", &pypowsybl::writeMergedDiffSingleLineDiagramSvg, "Write merged diff single line diagram SVG",
+          py::arg("network1"), py::arg("network2"), py::arg("container_id"), py::arg("p_threshold"),
+          py::arg("t_threshold"), py::arg("levels"), py::arg("showCurrent"), py::arg("svg_file"));
+
+    m.def("get_merged_diff_single_line_diagram_svg", &pypowsybl::getMergedDiffSingleLineDiagramSvg, "Get merged diff single line diagram SVG as a string",
+          py::arg("network1"), py::arg("network2"), py::arg("container_id"), py::arg("p_threshold"),
+          py::arg("t_threshold"), py::arg("levels"), py::arg("showCurrent"));
+
     m.def("create_security_analysis", &pypowsybl::createSecurityAnalysis, "Create a security analysis");
 
     m.def("add_contingency", &pypowsybl::addContingency, "Add a contingency to a security analysis or sensitivity analysis",

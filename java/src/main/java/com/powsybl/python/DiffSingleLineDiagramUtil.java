@@ -68,4 +68,40 @@ public final class DiffSingleLineDiagramUtil {
         writer.write(diffSvg);
         writer.flush();
     }
+
+    static String getMergedDiffSvg(Network network1, Network network2, String containerId, double pThreshold, double vThreshold, String levelsJson, boolean showCurrent) {
+        try (StringWriter writer = new StringWriter()) {
+            LevelsData lds = getLevelsData(levelsJson);
+            writeMergedDiffSvg(network1, network2, containerId, pThreshold, vThreshold, lds, showCurrent, writer);
+            writer.flush();
+            return writer.toString();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    static void writeMergedDiffSvg(Network network1, Network network2, String containerId, double pThreshold, double vThreshold, String levelsJson, boolean showCurrent, String svgFile) {
+        try (Writer writer = Files.newBufferedWriter(Paths.get(svgFile))) {
+            LevelsData lds = getLevelsData(levelsJson);
+            writeMergedDiffSvg(network1, network2, containerId, pThreshold, vThreshold, lds, showCurrent, writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    static void writeMergedDiffSvg(Network network1, Network network2, String containerId, double pThreshold, double vThreshold, LevelsData levels, boolean showCurrent, Writer writer) throws IOException {
+        String diffSvg;
+        if (network1.getVoltageLevel(containerId) != null) {
+            diffSvg = new NetworkDiffUtil().getVoltageLevelMergedSvgDiff(network1, network2, containerId,
+                    pThreshold, vThreshold, levels, showCurrent);
+        } else if (network1.getSubstation(containerId) != null) {
+            diffSvg = new NetworkDiffUtil().getSubstationMergedSvgDiff(network1, network2, containerId,
+                    pThreshold, vThreshold, levels, showCurrent);
+        } else {
+            throw new PowsyblException("Container '" + containerId + "' not found");
+        }
+        writer.write(diffSvg);
+        writer.flush();
+    }
+
 }
