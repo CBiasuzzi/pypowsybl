@@ -356,18 +356,18 @@ public final class PyPowsyblNetworkApiLib {
                 case STRING_SERIES_TYPE:
                     updatingDataframe.addSeries(new StringSeries(name, elementCount,
                                     (CCharPointerPointer) seriesPointer.data().getPtr()),
-                            new SeriesMetadata(seriesPointer.isIndex(), name, false, SeriesDataType.STRING));
+                            new SeriesMetadata(seriesPointer.isIndex(), name, false, SeriesDataType.STRING, true));
                     break;
                 case DOUBLE_SERIES_TYPE:
                     updatingDataframe.addSeries(new DoubleSeries(name, elementCount,
                                     (CDoublePointer) seriesPointer.data().getPtr()),
-                            new SeriesMetadata(seriesPointer.isIndex(), name, false, SeriesDataType.DOUBLE));
+                            new SeriesMetadata(seriesPointer.isIndex(), name, false, SeriesDataType.DOUBLE, true));
                     break;
                 case INT_SERIES_TYPE:
                 case BOOLEAN_SERIES_TYPE:
                     updatingDataframe.addSeries(new IntSeries(name, elementCount,
                                     (CIntPointer) seriesPointer.data().getPtr()),
-                            new SeriesMetadata(seriesPointer.isIndex(), name, false, SeriesDataType.INT));
+                            new SeriesMetadata(seriesPointer.isIndex(), name, false, SeriesDataType.INT, true));
                     break;
             }
 

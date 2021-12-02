@@ -35,7 +35,9 @@ public abstract class AbstractNetworkDataframeMapper<T> extends AbstractDatafram
             mappers.addAll(getPropertiesSeries(items));
         }
         dataframeHandler.allocate(mappers.size());
-        mappers.stream().forEach(mapper -> mapper.createSeries(items, dataframeHandler));
+        mappers.stream()
+               .filter(mapper -> mapper.getMetadata().isDefaultAttribute() || mapper.getMetadata().isIndex())
+               .forEach(mapper -> mapper.createSeries(items, dataframeHandler));
     }
 
     private List<SeriesMapper<T>> getPropertiesSeries(List<T> items) {
