@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,7 +35,9 @@ public abstract class AbstractNetworkDataframeMapper<T> extends AbstractDatafram
         if (addProperties) {
             mappers.addAll(getPropertiesSeries(items));
         }
-        dataframeHandler.allocate(mappers.size());
+        int notDefaultMappersSize =  Math.toIntExact(mappers.stream().map(SeriesMapper::getMetadata)
+                .filter(Predicate.not(SeriesMetadata::isDefaultAttribute)).count());
+        dataframeHandler.allocate(mappers.size() - notDefaultMappersSize);
         mappers.stream()
                .filter(mapper -> mapper.getMetadata().isDefaultAttribute() || mapper.getMetadata().isIndex())
                .forEach(mapper -> mapper.createSeries(items, dataframeHandler));
