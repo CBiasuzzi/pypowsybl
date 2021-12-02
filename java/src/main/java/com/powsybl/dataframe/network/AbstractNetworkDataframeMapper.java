@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,16 +30,12 @@ public abstract class AbstractNetworkDataframeMapper<T> extends AbstractDatafram
     @Override
     public void createDataframe(Network network, DataframeHandler dataframeHandler) {
         List<T> items = getItems(network);
-        List<SeriesMapper<T>> mappers = new ArrayList<>(seriesMappers.values());
+        List<SeriesMapper<T>> mappers = new ArrayList<>(getSeriesMappers());
         if (addProperties) {
             mappers.addAll(getPropertiesSeries(items));
         }
-        int notDefaultMappersSize =  Math.toIntExact(mappers.stream().map(SeriesMapper::getMetadata)
-                .filter(Predicate.not(SeriesMetadata::isDefaultAttribute)).count());
-        dataframeHandler.allocate(mappers.size() - notDefaultMappersSize);
-        mappers.stream()
-               .filter(mapper -> mapper.getMetadata().isDefaultAttribute() || mapper.getMetadata().isIndex())
-               .forEach(mapper -> mapper.createSeries(items, dataframeHandler));
+        dataframeHandler.allocate(mappers.size());
+        mappers.stream().forEach(mapper -> mapper.createSeries(items, dataframeHandler));
     }
 
     private List<SeriesMapper<T>> getPropertiesSeries(List<T> items) {

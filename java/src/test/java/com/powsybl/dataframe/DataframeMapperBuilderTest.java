@@ -421,4 +421,29 @@ class DataframeMapperBuilderTest {
         assertEquals("val3", container.getElement("el1", 1).getStrValue());
         assertEquals("val4", container.getElement("el2", 0).getStrValue());
     }
+
+    @Test
+    void testDefaults() {
+        DataframeMapper<Container> mapper = new DataframeMapperBuilder<Container, Element>()
+                .itemsProvider(Container::getElements)
+                .stringsIndex("id", Element::getId)
+                .strings("str", Element::getStrValue, false)
+                .ints("int", Element::getIntValue)
+                .doubles("double", Element::getDoubleValue, false)
+                .enums("color", Color.class, Element::getColorValue)
+                .build();
+
+        Container container = new Container(
+                new Element("el1", "val1", 1, 10, Color.RED),
+                new Element("el2", "val2", 2, 20, Color.BLUE)
+        );
+
+        List<com.powsybl.dataframe.impl.Series> series = new ArrayList<>();
+        mapper.createDataframe(container, new DefaultDataframeHandler(series::add));
+
+        assertThat(series)
+                .extracting(com.powsybl.dataframe.impl.Series::getName)
+                .containsExactly("id", "int", "color");
+
+    }
 }

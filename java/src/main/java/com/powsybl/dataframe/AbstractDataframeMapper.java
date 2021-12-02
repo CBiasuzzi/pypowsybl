@@ -9,6 +9,7 @@ package com.powsybl.dataframe;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.dataframe.update.UpdatingDataframe;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -44,9 +45,10 @@ public abstract class AbstractDataframeMapper<T, U> implements DataframeMapper<T
 
     @Override
     public void createDataframe(T object, DataframeHandler dataframeHandler) {
-        dataframeHandler.allocate(seriesMappers.size());
+        Collection<SeriesMapper<U>> mappers = getSeriesMappers();
+        dataframeHandler.allocate(mappers.size());
         List<U> items = getItems(object);
-        seriesMappers.values().stream().forEach(mapper -> mapper.createSeries(items, dataframeHandler));
+        mappers.stream().forEach(mapper -> mapper.createSeries(items, dataframeHandler));
     }
 
     @Override
@@ -75,6 +77,18 @@ public abstract class AbstractDataframeMapper<T, U> implements DataframeMapper<T
                 }
             }
         }
+    }
+
+    public Collection<SeriesMapper<U>> getSeriesMappers(boolean filterDefaults) {
+        Collection<SeriesMapper<U>> mappers = seriesMappers.values();
+        return filterDefaults ?
+                mappers.stream().filter(mapper -> mapper.getMetadata().isDefaultAttribute() || mapper.getMetadata().isIndex())
+                .collect(Collectors.toList())
+                : mappers;
+    }
+
+    public Collection<SeriesMapper<U>> getSeriesMappers() {
+        return getSeriesMappers(true);
     }
 
     protected abstract List<U> getItems(T object);
