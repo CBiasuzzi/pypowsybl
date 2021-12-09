@@ -7,6 +7,7 @@
 package com.powsybl.dataframe.network;
 
 import com.powsybl.dataframe.DataframeElementType;
+import com.powsybl.dataframe.DataframeFilter;
 import com.powsybl.dataframe.impl.DefaultDataframeHandler;
 import com.powsybl.dataframe.impl.Series;
 import com.powsybl.dataframe.DoubleIndexedSeries;
@@ -30,7 +31,7 @@ class NetworkDataframesTest {
         List<Series> series = new ArrayList<>();
         NetworkDataframeMapper mapper = NetworkDataframes.getDataframeMapper(type);
         assertNotNull(mapper);
-        mapper.createDataframe(network, new DefaultDataframeHandler(series::add));
+        mapper.createDataframe(network, new DefaultDataframeHandler(series::add), new DataframeFilter());
         return series;
     }
 

@@ -44,8 +44,8 @@ public abstract class AbstractDataframeMapper<T, U> implements DataframeMapper<T
     }
 
     @Override
-    public void createDataframe(T object, DataframeHandler dataframeHandler) {
-        Collection<SeriesMapper<U>> mappers = getSeriesMappers();
+    public void createDataframe(T object, DataframeHandler dataframeHandler, DataframeFilter dataframeFilter) {
+        Collection<SeriesMapper<U>> mappers = getSeriesMappers(dataframeFilter);
         dataframeHandler.allocate(mappers.size());
         List<U> items = getItems(object);
         mappers.stream().forEach(mapper -> mapper.createSeries(items, dataframeHandler));
@@ -79,16 +79,24 @@ public abstract class AbstractDataframeMapper<T, U> implements DataframeMapper<T
         }
     }
 
-    public Collection<SeriesMapper<U>> getSeriesMappers(boolean filterDefaults) {
+    public Collection<SeriesMapper<U>> getSeriesMappers(DataframeFilter dataframeFilter) {
         Collection<SeriesMapper<U>> mappers = seriesMappers.values();
-        return filterDefaults ?
-                mappers.stream().filter(mapper -> mapper.getMetadata().isDefaultAttribute() || mapper.getMetadata().isIndex())
-                .collect(Collectors.toList())
-                : mappers;
+        return mappers.stream()
+                      .filter(mapper -> filterMapper(mapper, dataframeFilter))
+                      .collect(Collectors.toList());
     }
 
-    public Collection<SeriesMapper<U>> getSeriesMappers() {
-        return getSeriesMappers(true);
+    protected boolean filterMapper(SeriesMapper<U> mapper, DataframeFilter dataframeFilter) {
+        switch (dataframeFilter.getAttributeFilterType()) {
+            case DEFAULT_ATTRIBUTES:
+                return mapper.getMetadata().isDefaultAttribute() || mapper.getMetadata().isIndex();
+            case INPUT_ATTRIBUTES:
+                return dataframeFilter.getInputAttributes().contains(mapper.getMetadata().getName()) || mapper.getMetadata().isIndex();
+            case ALL_ATTRIBUTES:
+                return true;
+            default:
+                throw new IllegalStateException("Unexpected attribute filter type: " + dataframeFilter.getAttributeFilterType());
+        }
     }
 
     protected abstract List<U> getItems(T object);

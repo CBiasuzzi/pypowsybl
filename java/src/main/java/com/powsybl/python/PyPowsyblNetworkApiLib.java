@@ -6,6 +6,8 @@ import com.powsybl.cgmes.model.test.TestGridModelResources;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.dataframe.DataframeFilter;
+import com.powsybl.dataframe.DataframeFilter.AttributeFilterType;
 import com.powsybl.dataframe.IndexedSeries;
 import com.powsybl.dataframe.SeriesDataType;
 import com.powsybl.dataframe.SeriesMetadata;
@@ -326,11 +328,15 @@ public final class PyPowsyblNetworkApiLib {
 
     @CEntryPoint(name = "createNetworkElementsSeriesArray")
     public static PyPowsyblApiHeader.ArrayPointer<PyPowsyblApiHeader.SeriesPointer> createNetworkElementsSeriesArray(IsolateThread thread, ObjectHandle networkHandle,
-                                                                                                                     PyPowsyblApiHeader.ElementType elementType, PyPowsyblApiHeader.ExceptionHandlerPointer exceptionHandlerPtr) {
+                                                                                                                     PyPowsyblApiHeader.ElementType elementType,
+                                                                                                                     CCharPointerPointer attributesPtrPtr, int attributesCount,
+                                                                                                                     PyPowsyblApiHeader.ExceptionHandlerPointer exceptionHandlerPtr) {
         return doCatch(exceptionHandlerPtr, () -> {
             NetworkDataframeMapper mapper = NetworkDataframes.getDataframeMapper(convert(elementType));
             Network network = ObjectHandles.getGlobal().get(networkHandle);
-            return Dataframes.createCDataframe(mapper, network);
+            List<String> attributes = toStringList(attributesPtrPtr, attributesCount);
+            DataframeFilter dataframeFilter = attributesCount > 0 ? new DataframeFilter(AttributeFilterType.INPUT_ATTRIBUTES, attributes) : new DataframeFilter(AttributeFilterType.DEFAULT_ATTRIBUTES, attributes);
+            return Dataframes.createCDataframe(mapper, network, dataframeFilter);
         });
     }
 
