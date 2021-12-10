@@ -329,14 +329,26 @@ public final class PyPowsyblNetworkApiLib {
     @CEntryPoint(name = "createNetworkElementsSeriesArray")
     public static PyPowsyblApiHeader.ArrayPointer<PyPowsyblApiHeader.SeriesPointer> createNetworkElementsSeriesArray(IsolateThread thread, ObjectHandle networkHandle,
                                                                                                                      PyPowsyblApiHeader.ElementType elementType,
+                                                                                                                     PyPowsyblApiHeader.FilterAttributesType filterAttributesType,
                                                                                                                      CCharPointerPointer attributesPtrPtr, int attributesCount,
                                                                                                                      PyPowsyblApiHeader.ExceptionHandlerPointer exceptionHandlerPtr) {
         return doCatch(exceptionHandlerPtr, () -> {
             NetworkDataframeMapper mapper = NetworkDataframes.getDataframeMapper(convert(elementType));
             Network network = ObjectHandles.getGlobal().get(networkHandle);
             List<String> attributes = toStringList(attributesPtrPtr, attributesCount);
-            DataframeFilter dataframeFilter = attributesCount > 0 ? new DataframeFilter(AttributeFilterType.INPUT_ATTRIBUTES, attributes) : new DataframeFilter(AttributeFilterType.DEFAULT_ATTRIBUTES, attributes);
-            return Dataframes.createCDataframe(mapper, network, dataframeFilter);
+            AttributeFilterType filterType = AttributeFilterType.DEFAULT_ATTRIBUTES;
+            switch (filterAttributesType) {
+                case ALL_ATTRIBUTES:
+                    filterType = AttributeFilterType.ALL_ATTRIBUTES;
+                    break;
+                case SELECTION_ATTRIBUTES:
+                    filterType = AttributeFilterType.INPUT_ATTRIBUTES;
+                    break;
+                case DEFAULT_ATTRIBUTES:
+                    filterType = AttributeFilterType.DEFAULT_ATTRIBUTES;
+                    break;
+            }
+            return Dataframes.createCDataframe(mapper, network, new DataframeFilter(filterType, attributes));
         });
     }
 
